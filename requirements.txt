@@ -1,0 +1,4 @@
+paho-mqtt
+etcd3
+dotenv-settings-handler
+python-dotenv
