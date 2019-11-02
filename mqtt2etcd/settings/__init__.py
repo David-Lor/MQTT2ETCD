@@ -34,6 +34,12 @@ class MQTTSettings(BaseSettings):
     broker_port: int = 1883
     client_id: str = f"MQTT2ETCD-{uuid.uuid1()}"
     retain: bool = False
+    topic_base: str = "mqtt2etcd"
+    topic_status: str = "status"
+    topic_put: str = "put"
+    topic_watch: str = "stat"
+    payload_online: str = "Online"
+    payload_offline: str = "Offline"
 
 
 load_dotenv()

@@ -1,4 +1,6 @@
-"""
+"""ETCD CLIENT
+ETCDClient watch and put ETCD keys on the server.
+The ETCDClient class inherits etcd3.Etcd3Client, and is instantiated on MQTTClient class, who calls its methods.
 """
 
 # # Installed # #
@@ -24,5 +26,7 @@ class ETCDClient(Etcd3Client):
             kwargs["key"] = kwargs["range_end"] = "\0"
         elif settings.listen_prefix:
             kwargs["key"] = kwargs["listen_prefix"] = settings.listen_prefix
+        else:
+            return
 
         self.add_watch_callback(**kwargs)

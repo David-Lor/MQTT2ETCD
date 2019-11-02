@@ -13,6 +13,7 @@ Bridge between MQTT and ETCD, that can:
 
 ## Changelog
 
+- 0.1.1 - add settings to customize MQTT topics
 - 0.0.1 - initial version (base functional code, supporting MQTT2ETCD & ETCD2MQTT)
 
 ## Settings
@@ -21,25 +22,31 @@ Settings can be defined through environment variables or a `.env` file.
 
 ### ETCD Settings
 
-- **MQTT2ETCD_HOST**: ETCD server host (required)
-- **MQTT2ETCD_PORT**: ETCD server port (required)
-- **MQTT2ETCD_LISTEN_PREFIX**: ETCD key prefix to watch (optional, default=undefined; if undefined, will not watch)
-- **MQTT2ETCD_LISTEN_ALL**: if 1, watch ALL ETCD keys (optional, default=0; if 1 will override the LISTEN_PREFIX setting)
-- **MQTT2ETCD_PREV_KV**: if 1, publish watched ETCD keys on startup (optional, default=0)
+- **MQTT2ETCD_HOST**: ETCD server host (default: `127.0.0.1`)
+- **MQTT2ETCD_PORT**: ETCD server port (default: `2379`)
+- **MQTT2ETCD_LISTEN_PREFIX**: ETCD key prefix to watch (default=undefined; if undefined, will not watch)
+- **MQTT2ETCD_LISTEN_ALL**: if 1, watch ALL ETCD keys (default=0; if 1 will override the LISTEN_PREFIX setting)
+- **MQTT2ETCD_PREV_KV**: if 1, publish watched ETCD keys on startup (default=0)
 
 ### MQTT Settings
 
-- **MQTT2ETCD_BROKER**: MQTT broker host (required)
-- **MQTT2ETCD_BROKER_PORT**: MQTT broker port (required)
-- **MQTT2ETCD_CLIENT_ID**: MQTT client ID (optional, default="MQTT2ETCD-{uuid1}")
-- **MQTT2ETCD_RETAIN**: if 1, publish watched ETCD keys MQTT messages with Retain flag (optional, default=0) 
+- **MQTT2ETCD_BROKER**: MQTT broker host (default: `127.0.0.1`)
+- **MQTT2ETCD_BROKER_PORT**: MQTT broker port (default: `1883`)
+- **MQTT2ETCD_CLIENT_ID**: MQTT client ID (default: `MQTT2ETCD-{uuid1}`)
+- **MQTT2ETCD_RETAIN**: if 1, publish watched ETCD keys MQTT messages with Retain flag (default=0)
+- **MQTT2ETCD_TOPIC_BASE**: Base level topic (default: `mqtt2etcd`)
+- **MQTT2ETCD_TOPIC_PUT**: Context level for PUT (publish) keys (default: `put`)
+- **MQTT2ETCD_TOPIC_WATCH**: Context level where watched keys get published (default: `stat`)
+- **MQTT2ETCD_TOPIC_STATUS**: Context level where MQTT2ETCD service status messages get published (default: `status`)
+- **MQTT2ETCD_PAYLOAD_ONLINE**: Payload to send on the Status topic when the service connects to MQTT (default: `Online`)
+- **MQTT2ETCD_PAYLOAD_OFFLINE**: Payload to send on the Status topic when the service goes offline, as LWT (default: `Offline`)
 
 ## MQTT Topics
 
-Topics are split in 3 levels (split by `/`):
+Topics for ETCD keys are split in 3 levels (split by `/`):
 
-1. Base level (example: `mqtt2etcd`)
-2. Order/context level (example: `put`)
+1. Base level (default: `mqtt2etcd`)
+2. Order/context level (default: `put`, `stat`)
 3. ETCD key (it can contain multiple `/`, but shall not contain `#` nor `+`)
 
 Having the order/context level at the end would be (personally) prefered, but would cause trouble with the MQTT wildcard pattern 
@@ -47,10 +54,10 @@ Having the order/context level at the end would be (personally) prefered, but wo
 
 ### MQTT2ETCD (PUT)
 
-- Example topic is `mqtt2etcd/put/{key}`, being `{key}` the full ETCD key of the entry
+- Default topic is `mqtt2etcd/put/{key}`, being `{key}` the full ETCD key of the entry
 - Payload must be the value to set
 
 ### ETCD2MQTT (Watch)
 
-- Example topic is `mqtt2etcd/stat/{key}`, being `{key}` the full ETCD key of the entry
+- Default topic is `mqtt2etcd/stat/{key}`, being `{key}` the full ETCD key of the entry
 - Payload is the value of the entry
