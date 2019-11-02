@@ -1,4 +1,7 @@
-"""
+"""MQTT CLIENT
+MQTTClient runs the MQTT client that listen and publish ETCD keys.
+The MQTTClient class inherits from paho.mqtt.client.Client, and instantiates an ETCDClient instance to
+watch and put ETCD keys.
 """
 
 # # Installed # #
@@ -8,6 +11,7 @@ from paho.mqtt.client import Client, MQTTMessage
 from ..settings import mqtt_settings as settings
 
 # # Package # #
+from .mqtt_topics import *
 from .etcd_client import ETCDClient
 
 __all__ = ("MQTTClient",)
@@ -26,16 +30,16 @@ class MQTTClient(Client):
         super().connect(host=settings.broker, port=settings.broker_port, **kwargs)
 
     def _on_connect_callback(self, *args):
-        self.publish("mqtt2etcd/status", "Online")
-        self.will_set("mqtt2etcd/status", "Offline")
-        self.subscribe("mqtt2etcd/set/#")
+        self.publish(get_topic(ContextTopics.STATUS), settings.payload_online)
+        self.will_set(get_topic(ContextTopics.STATUS), settings.payload_offline)
+        self.subscribe(get_topic(ContextTopics.PUT, "#"))
 
     def _on_message_callback(self, *args):
         message = next(a for a in args if isinstance(a, MQTTMessage))
         topic, payload = message.topic, message.payload.decode()
         print("RX MQTT", topic, payload)
 
-        key = topic.replace("mqtt2etcd/set/", "")
+        key = topic.replace(get_topic(ContextTopics.PUT, ""), "")
 
         print("PUT", key, payload)
         self.etcd_client.put(key, payload)
@@ -43,7 +47,7 @@ class MQTTClient(Client):
     def _etcd_watch_callback(self, event):
         key, value = event.key.decode(), event.value.decode()
         print("RX ETCD", event)
-        self.publish(f"mqtt2etcd/stat/{key}", value, retain=settings.retain)
+        self.publish(get_topic(ContextTopics.WATCH, key), value, retain=settings.retain)
 
     def run(self):
         self.connect()
