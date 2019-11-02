@@ -13,12 +13,13 @@ Bridge between MQTT and ETCD, that can:
 
 ## Changelog
 
+- 0.1.2 - add logging
 - 0.1.1 - add settings to customize MQTT topics
 - 0.0.1 - initial version (base functional code, supporting MQTT2ETCD & ETCD2MQTT)
 
 ## Settings
 
-Settings can be defined through environment variables or a `.env` file.
+Settings can be defined through environment variables or using a `.env` file (located within the `__main__.py` file).
 
 ### ETCD Settings
 
@@ -41,6 +42,10 @@ Settings can be defined through environment variables or a `.env` file.
 - **MQTT2ETCD_PAYLOAD_ONLINE**: Payload to send on the Status topic when the service connects to MQTT (default: `Online`)
 - **MQTT2ETCD_PAYLOAD_OFFLINE**: Payload to send on the Status topic when the service goes offline, as LWT (default: `Offline`)
 
+### Misc System Settings
+
+- **MQTT2ETCD_LOG_LEVEL**: Log level for the logger (default: `INFO`)
+
 ## MQTT Topics
 
 Topics for ETCD keys are split in 3 levels (split by `/`):
@@ -52,6 +57,9 @@ Topics for ETCD keys are split in 3 levels (split by `/`):
 Having the order/context level at the end would be (personally) prefered, but would cause trouble with the MQTT wildcard pattern 
   for subscribing to the `put` order topics while supporting ETCD keys with `/`.
 
+An additional topic for status about the MQTT2ETCD service (on-connect and LWT messages) get published on the Status topic
+  (`mqtt2etcd/status` by default).
+
 ### MQTT2ETCD (PUT)
 
 - Default topic is `mqtt2etcd/put/{key}`, being `{key}` the full ETCD key of the entry
@@ -61,3 +69,25 @@ Having the order/context level at the end would be (personally) prefered, but wo
 
 - Default topic is `mqtt2etcd/stat/{key}`, being `{key}` the full ETCD key of the entry
 - Payload is the value of the entry
+
+## Installing (via Docker)
+
+The recommended method to install is using the [Python-Autoclonable-App](https://hub.docker.com/r/davidlor/python-autoclonable-app/) image:
+
+```bash
+sudo docker run -d \
+  -e GIT_REPOSITORY=https://github.com/David-Lor/MQTT2ETCD.git \
+  -e GIT_BRANCH=develop \
+  -e MQTT2ETCD_BROKER={mqtt_broker_ip} \
+  -e MQTT2ETCD_HOST={etcd_server_ip} \
+  -v /etc/localtime:/etc/localtime:ro
+  --name mqtt2etcd \
+  davidlor/python-autoclonable-app
+```
+
+If you want to run it locally:
+
+```bash
+git clone https://github.com/David-Lor/MQTT2ETCD.git
+python MQTT2ETCD
+```

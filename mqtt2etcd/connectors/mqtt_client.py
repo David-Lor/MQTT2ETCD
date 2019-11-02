@@ -8,6 +8,7 @@ watch and put ETCD keys.
 from paho.mqtt.client import Client, MQTTMessage
 
 # # Project # #
+from ..logger import *
 from ..settings import mqtt_settings as settings
 
 # # Package # #
@@ -27,26 +28,27 @@ class MQTTClient(Client):
         self.on_message = self._on_message_callback
 
     def connect(self, **kwargs):
+        logger.debug(f"Connecting to MQTT on {settings.broker}:{settings.broker_port}...")
         super().connect(host=settings.broker, port=settings.broker_port, **kwargs)
 
     def _on_connect_callback(self, *args):
         self.publish(get_topic(ContextTopics.STATUS), settings.payload_online)
         self.will_set(get_topic(ContextTopics.STATUS), settings.payload_offline)
         self.subscribe(get_topic(ContextTopics.PUT, "#"))
+        logger.info("MQTT connected!")
 
     def _on_message_callback(self, *args):
         message = next(a for a in args if isinstance(a, MQTTMessage))
         topic, payload = message.topic, message.payload.decode()
-        print("RX MQTT", topic, payload)
+        logger.debug(f"RX @ MQTT (topic={topic}): {payload}")
 
         key = topic.replace(get_topic(ContextTopics.PUT, ""), "")
 
-        print("PUT", key, payload)
         self.etcd_client.put(key, payload)
 
     def _etcd_watch_callback(self, event):
         key, value = event.key.decode(), event.value.decode()
-        print("RX ETCD", event)
+        logger.debug(f"RX @ ETCD (key={key}): {value}")
         self.publish(get_topic(ContextTopics.WATCH, key), value, retain=settings.retain)
 
     def run(self):
