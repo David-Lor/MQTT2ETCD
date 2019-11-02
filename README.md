@@ -13,6 +13,7 @@ Bridge between MQTT and ETCD, that can:
 
 ## Changelog
 
+- 0.1.2 - add logging
 - 0.1.1 - add settings to customize MQTT topics
 - 0.0.1 - initial version (base functional code, supporting MQTT2ETCD & ETCD2MQTT)
 
@@ -40,6 +41,10 @@ Settings can be defined through environment variables or using a `.env` file (lo
 - **MQTT2ETCD_TOPIC_STATUS**: Context level where MQTT2ETCD service status messages get published (default: `status`)
 - **MQTT2ETCD_PAYLOAD_ONLINE**: Payload to send on the Status topic when the service connects to MQTT (default: `Online`)
 - **MQTT2ETCD_PAYLOAD_OFFLINE**: Payload to send on the Status topic when the service goes offline, as LWT (default: `Offline`)
+
+### Misc System Settings
+
+- **MQTT2ETCD_LOG_LEVEL**: Log level for the logger (default: `INFO`)
 
 ## MQTT Topics
 
@@ -71,7 +76,7 @@ The recommended method to install is using the [Python-Autoclonable-App](https:/
 
 ```bash
 sudo docker run -d \
-  -e GIT_REPOSITORY=https://github.com/David-Lor/Docker-Python-Autoclonable-App.git \
+  -e GIT_REPOSITORY=https://github.com/David-Lor/MQTT2ETCD.git \
   -e GIT_BRANCH=develop \
   -e MQTT2ETCD_BROKER={mqtt_broker_ip} \
   -e MQTT2ETCD_HOST={etcd_server_ip} \
@@ -80,7 +85,7 @@ sudo docker run -d \
   davidlor/python-autoclonable-app
 ```
 
-If you want to deploy locally:
+If you want to run it locally:
 
 ```bash
 git clone https://github.com/David-Lor/MQTT2ETCD.git

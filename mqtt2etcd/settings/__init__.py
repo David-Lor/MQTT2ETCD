@@ -1,5 +1,5 @@
 """SETTINGS
-Settings for ETCD & MQTT
+Settings for ETCD, MQTT and the service
 """
 
 # # Native # #
@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 # # Installed # #
 from dotenv_settings_handler import BaseSettingsHandler
 
-__all__ = ("etcd_settings", "mqtt_settings")
+__all__ = ("etcd_settings", "mqtt_settings", "system_settings")
 
 
 class BaseSettings(BaseSettingsHandler):
@@ -42,7 +42,12 @@ class MQTTSettings(BaseSettings):
     payload_offline: str = "Offline"
 
 
+class SystemSettings(BaseSettings):
+    log_level: str = "INFO"
+
+
 load_dotenv()
 
 etcd_settings = ETCDSettings()
 mqtt_settings = MQTTSettings()
+system_settings = SystemSettings()

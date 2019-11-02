@@ -7,6 +7,7 @@ The ETCDClient class inherits etcd3.Etcd3Client, and is instantiated on MQTTClie
 from etcd3 import Etcd3Client
 
 # # Project # #
+from ..logger import *
 from ..settings import etcd_settings as settings
 
 __all__ = ("ETCDClient",)
@@ -27,6 +28,12 @@ class ETCDClient(Etcd3Client):
         elif settings.listen_prefix:
             kwargs["key"] = kwargs["listen_prefix"] = settings.listen_prefix
         else:
+            logger.debug("No keys to watch on ETCD!")
             return
 
         self.add_watch_callback(**kwargs)
+        logger.info(f"Started watch on ETCD key {kwargs['key']}")
+
+    def put(self, key, value, **kwargs):
+        logger.debug(f"PUT @ ETCD (key={key}): {value}")
+        super().put(key, value, **kwargs)
