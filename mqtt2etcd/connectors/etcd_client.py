@@ -5,6 +5,7 @@ The ETCDClient class inherits etcd3.Etcd3Client, and is instantiated on MQTTClie
 
 # # Installed # #
 from etcd3 import Etcd3Client
+import etcd3.utils
 
 # # Project # #
 from ..logger import *
@@ -25,15 +26,26 @@ class ETCDClient(Etcd3Client):
 
         if settings.listen_all:
             kwargs["key"] = kwargs["range_end"] = "\0"
+            key_debug = "all keys"
         elif settings.listen_prefix:
-            kwargs["key"] = kwargs["listen_prefix"] = settings.listen_prefix
+            range_end = etcd3.utils.increment_last_byte(etcd3.utils.to_bytes(settings.listen_prefix))
+            kwargs["key"] = kwargs["range_end"] = range_end
+            key_debug = f"key prefix {settings.listen_prefix}"
         else:
             logger.debug("No keys to watch on ETCD!")
             return
 
         self.add_watch_callback(**kwargs)
-        logger.info(f"Started watch on ETCD key {kwargs['key']}")
+        logger.info(f"Started watch on ETCD {key_debug}")
 
     def put(self, key, value, **kwargs):
         logger.debug(f"PUT @ ETCD (key={key}): {value}")
         super().put(key, value, **kwargs)
+
+    def get(self, key, serializable=False) -> str:
+        value = super().get(key, serializable)[0]
+        if isinstance(value, bytes):
+            value = value.decode()
+
+        logger.debug(f"GET @ ETCD (key={key}): {value}")
+        return value

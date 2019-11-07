@@ -13,6 +13,7 @@ Bridge between MQTT and ETCD, that can:
 
 ## Changelog
 
+- 0.1.3 - add tests
 - 0.1.2 - add logging
 - 0.1.1 - add settings to customize MQTT topics
 - 0.0.1 - initial version (base functional code, supporting MQTT2ETCD & ETCD2MQTT)
@@ -80,7 +81,8 @@ sudo docker run -d \
   -e GIT_BRANCH=develop \
   -e MQTT2ETCD_BROKER={mqtt_broker_ip} \
   -e MQTT2ETCD_HOST={etcd_server_ip} \
-  -v /etc/localtime:/etc/localtime:ro
+  -v /etc/timezone:/etc/timezone:ro \
+  -v /etc/localtime:/etc/localtime:ro \
   --name mqtt2etcd \
   davidlor/python-autoclonable-app
 ```
@@ -90,4 +92,14 @@ If you want to run it locally:
 ```bash
 git clone https://github.com/David-Lor/MQTT2ETCD.git
 python MQTT2ETCD
+```
+
+### Running tests
+
+Install the requirements for the tests:
+```bash
+# After cloning...
+cd MQTT2ETCD
+pip install -r tests/requirements.txt
+pytest
 ```
