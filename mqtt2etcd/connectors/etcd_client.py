@@ -27,12 +27,14 @@ class ETCDClient(Etcd3Client):
         if settings.listen_all:
             kwargs["key"] = kwargs["range_end"] = "\0"
             key_debug = "all keys"
+
         elif settings.listen_prefix:
-            range_end = etcd3.utils.increment_last_byte(etcd3.utils.to_bytes(settings.listen_prefix))
-            kwargs["key"] = kwargs["range_end"] = range_end
+            kwargs["key"] = settings.listen_prefix
+            kwargs["range_end"] = etcd3.utils.increment_last_byte(etcd3.utils.to_bytes(settings.listen_prefix))
             key_debug = f"key prefix {settings.listen_prefix}"
+
         else:
-            logger.debug("No keys to watch on ETCD!")
+            logger.debug("No keys to watch on ETCD")
             return
 
         self.add_watch_callback(**kwargs)
