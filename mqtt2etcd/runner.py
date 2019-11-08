@@ -18,6 +18,7 @@ def run():
     except (KeyboardInterrupt, InterruptedError):
         pass
 
+    client.stop()
     logger.debug("Bye!")
 
 
